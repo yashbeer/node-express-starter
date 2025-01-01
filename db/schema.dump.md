@@ -1,3 +1,4 @@
+```
 CREATE TABLE `knex_migrations` (
   `id` integer not null primary key autoincrement,
   `name` varchar(255),
@@ -35,4 +36,4 @@ CREATE TABLE `tokens` (
   `updatedAt` datetime default CURRENT_TIMESTAMP,
   foreign key(`userId`) references `users`(`id`)
 )
-
+```
