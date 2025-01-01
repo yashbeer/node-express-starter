@@ -4,11 +4,11 @@ const config = require('../config/config');
 const swaggerDef = {
   openapi: '3.0.0',
   info: {
-    title: 'Makeflow - Nodejs Backend API docs',
+    title: 'Nodejs Backend REST API docs',
     version,
     license: {
       name: 'MIT',
-      url: 'https://makeflow.in',
+      url: 'https://node-express-starter.com',
     },
   },
   servers: [

@@ -1,7 +1,7 @@
 {
-  "name": "makeflow-api",
+  "name": "node-express-starter",
   "version": "1.0.0",
-  "description": "Nodejs backend application for Makeflow APIs",
+  "description": "Nodejs backend application for REST APIs",
   "main": "src/index.js",
   "author": "Yashbeer",
   "license": "MIT",
