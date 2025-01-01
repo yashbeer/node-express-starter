@@ -7,7 +7,7 @@ module.exports = {
   development: {
     client: 'better-sqlite3',
     connection: {
-      filename: './makeflow.db',
+      filename: './sunshine.db',
     },
     migrations: {
       directory: path.join(__dirname, 'migrations'),
