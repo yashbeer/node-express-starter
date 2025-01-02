@@ -10,7 +10,7 @@ const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
-    DB_FILE_PATH: Joi.string().required().description('Path to the SQLite database file'),
+    DB_NAME: Joi.string().required().description('Path to the SQLite database file'),
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
@@ -38,7 +38,7 @@ module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   sqlite: {
-    path: envVars.DB_FILE_PATH + (envVars.NODE_ENV === 'test' ? '-test.db' : '.db'),
+    path: path.join(__dirname, '..', '..', 'db', `${envVars.DB_NAME}${envVars.NODE_ENV === 'test' ? '-test.db' : '.db'}`),
   },
   jwt: {
     secret: envVars.JWT_SECRET,

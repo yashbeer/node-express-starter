@@ -36,4 +36,6 @@ CREATE TABLE `tokens` (
   `updatedAt` datetime default CURRENT_TIMESTAMP,
   foreign key(`userId`) references `users`(`id`)
 )
+
+
 ```

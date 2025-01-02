@@ -38,7 +38,7 @@ async function dumpSchema() {
     }
 
     // Write schema to file
-    fs.writeFileSync(path.join(dbDir, 'schema.dump.md'), schemaContent);
+    fs.writeFileSync(path.join(dbDir, 'schema.dump.md'), `\`\`\`\n${schemaContent}\n\`\`\``);
 
     console.log('Schema dumped successfully to db/schema.dump.md'); // eslint-disable-line no-console
   } catch (error) {
