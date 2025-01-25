@@ -1,8 +1,9 @@
 const knex = require('knex');
+const knexStringcase = require('knex-stringcase').default;
 const config = require('./config');
 const logger = require('./logger');
 
-const knexInstance = knex({
+const knexConfig = {
   client: 'better-sqlite3',
   connection: {
     filename: config.sqlite.path,
@@ -18,7 +19,9 @@ const knexInstance = knex({
       }
     },
   },
-});
+};
+
+const knexInstance = knex(knexStringcase(knexConfig));
 
 knexInstance
   .raw('SELECT 1')

@@ -1,7 +1,7 @@
 const express = require('express');
 const validate = require('../../middlewares/validate');
-const authValidation = require('../../validations/auth.validation');
-const authController = require('../../controllers/auth.controller');
+const { authValidation } = require('../../validations');
+const { authController } = require('../../controllers');
 const auth = require('../../middlewares/auth');
 
 const router = express.Router();
@@ -14,6 +14,7 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.get('/validate', auth(), authController.validateToken);
 
 module.exports = router;
 
@@ -53,8 +54,8 @@ module.exports = router;
  *                 minLength: 8
  *                 description: At least one number and one letter
  *             example:
- *               name: fake name
- *               email: fake@example.com
+ *               name: User One
+ *               email: user1@example.com
  *               password: password1
  *     responses:
  *       "201":
@@ -95,7 +96,7 @@ module.exports = router;
  *                 type: string
  *                 format: password
  *             example:
- *               email: fake@example.com
+ *               email: user1@example.com
  *               password: password1
  *     responses:
  *       "200":
@@ -288,4 +289,29 @@ module.exports = router;
  *             example:
  *               code: 401
  *               message: verify email failed
+ */
+
+/**
+ * @swagger
+ * /auth/validate:
+ *   get:
+ *     summary: Validate auth token
+ *     description: Validates the authentication token provided in the Authorization header
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *             example:
+ *               isValid: true
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
  */

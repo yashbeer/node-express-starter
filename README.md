@@ -2,7 +2,7 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, better-sqlite3 and Knex.
+A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, better-sqlite3, Knex, knex-stringcase.
 
 By running a single command, you will get a production-ready Node.js app installed and fully configured on your machine. The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
 
@@ -47,7 +47,7 @@ cp .env.example .env
 
 ## Features
 
-- **Sql database**: [SQLite](https://www.sqlite.org) object data modeling using [Knex](https://knexjs.org/)
+- **Sql database**: [SQLite](https://www.sqlite.org) object data modeling using [Knex](https://knexjs.org/) and [knex-stringcase](https://www.npmjs.com/package/knex-stringcase)
 - **Authentication and authorization**: using [passport](http://www.passportjs.org)
 - **Validation**: request data validation using [Joi](https://github.com/hapijs/joi)
 - **Logging**: using [winston](https://github.com/winstonjs/winston) and [morgan](https://github.com/expressjs/morgan)
@@ -132,18 +132,20 @@ The environment variables can be found and modified in the `.env` file. An examp
 ## Project Structure
 
 ```
+db\                 # Database and migrations
+docs\               # Swagger files
 src\
  |--config\         # Environment variables and configuration related things
- |--controllers\    # Route controllers (controller layer)
- |--docs\           # Swagger files
- |--middlewares\    # Custom express middlewares
- |--models\         # Knex models (data layer)
- |--routes\         # Routes
- |--services\       # Business logic (service layer)
+ |--controllers\    # Controllers handle HTTP requests and responses
+ |--middlewares\    # Custom middlewares like centralized error handler
+ |--models\         # Models handle database queries (Knex models with knex-stringcase)
+ |--routes\         # Routes map endpoints to controllers
+ |--services\       # Services handle business logic and interact with models
  |--utils\          # Utility classes and functions
  |--validations\    # Request data validation schemas
  |--app.js          # Express app
  |--index.js        # App entry point
+tests\              # Test files
 ```
 
 ## API Documentation

@@ -12,46 +12,54 @@
  * You should get the actual IDs after insertion from the returned objects.
  */
 
-const bcrypt = require('bcryptjs');
 const faker = require('faker');
 const User = require('../../src/models/user.model');
 
-const password = 'password1';
-const salt = bcrypt.genSaltSync(8);
-const hashedPassword = bcrypt.hashSync(password, salt);
-
 const userOne = {
+  id: 1,
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
-  password,
+  password: 'password1',
   role: 'user',
-  isEmailVerified: false,
+  isEmailVerified: 0,
 };
 
 const userTwo = {
+  id: 2,
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
-  password,
+  password: 'password1',
   role: 'user',
-  isEmailVerified: false,
+  isEmailVerified: 0,
+};
+
+const userThree = {
+  id: 3,
+  name: faker.name.findName(),
+  email: faker.internet.email().toLowerCase(),
+  password: 'password1',
+  role: 'user',
+  isEmailVerified: 0,
 };
 
 const admin = {
+  id: 4,
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
-  password,
+  password: 'password1',
   role: 'admin',
-  isEmailVerified: false,
+  isEmailVerified: 0,
 };
 
 const insertUsers = async (users) => {
-  const createdUsers = await Promise.all(users.map((user) => User.create({ ...user, password: hashedPassword })));
+  const createdUsers = await Promise.all(users.map((user) => User.create({ ...user })));
   return createdUsers;
 };
 
 module.exports = {
   userOne,
   userTwo,
+  userThree,
   admin,
   insertUsers,
 };

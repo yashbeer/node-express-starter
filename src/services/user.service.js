@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const bcrypt = require('bcryptjs');
-const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
+const { User } = require('../models');
 
 /**
  * Create a user

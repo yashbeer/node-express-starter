@@ -12,32 +12,12 @@
  * function to get the actual database-generated IDs and tokens.
  */
 
-const moment = require('moment');
-const config = require('../../src/config/config');
-const { tokenTypes } = require('../../src/config/tokens');
 const tokenService = require('../../src/services/token.service');
-const { userOne, admin, insertUsers } = require('./user.fixture');
 
-let userOneId;
-let adminId;
-
-const setupTokenFixture = async () => {
-  // Insert users and get their IDs
-  const [createdUserOne, createdAdmin] = await insertUsers([userOne, admin]);
-  userOneId = createdUserOne.id;
-  adminId = createdAdmin.id;
-
-  // Generate access tokens
-  const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
-  const userOneAccessToken = tokenService.generateToken(userOneId, accessTokenExpires, tokenTypes.ACCESS);
-  const adminAccessToken = tokenService.generateToken(adminId, accessTokenExpires, tokenTypes.ACCESS);
-
-  return {
-    userOneAccessToken,
-    adminAccessToken,
-    userOneId,
-    adminId,
-  };
+const setupTokenFixture = async (user) => {
+  // Generate access token for the provided user
+  const tokens = await tokenService.generateAuthTokens(user);
+  return tokens.access.token;
 };
 
 module.exports = {

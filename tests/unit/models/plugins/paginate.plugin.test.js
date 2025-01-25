@@ -115,7 +115,7 @@ describe('paginate plugin', () => {
         }
       );
 
-      expect(result.results[0]).toHaveProperty('project_id', project.id);
+      expect(result.results[0]).toHaveProperty('projectId', project.id);
       expect(result.totalResults).toBe(1);
     });
   });

@@ -12,9 +12,8 @@ const setupTestDB = () => {
     // Get all table names from the database
     const tables = await knex('sqlite_master')
       .where('type', 'table')
-      .whereNot('name', 'sqlite_sequence')
-      .whereNot('name', 'knex_migrations')
-      .whereNot('name', 'knex_migrations_lock')
+      .whereNot('name', 'LIKE', 'sqlite_%')
+      .andWhereNot('name', 'LIKE', 'knex_%')
       .pluck('name');
 
     // Disable foreign key checks before truncation
@@ -29,6 +28,8 @@ const setupTestDB = () => {
 
   afterAll(async () => {
     await knex.destroy();
+    // Close any remaining connections
+    await new Promise((resolve) => setTimeout(resolve, 500));
   });
 
   return knex;

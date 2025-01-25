@@ -47,6 +47,11 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const validateToken = catchAsync(async (req, res) => {
+  // Auth middleware has already validated the token
+  res.status(httpStatus.OK).send({ isValid: true });
+});
+
 module.exports = {
   register,
   login,
@@ -56,4 +61,5 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  validateToken,
 };

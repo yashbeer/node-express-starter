@@ -47,6 +47,44 @@ components:
         message:
           type: string
 
+    Invitation:
+      type: object
+      properties:
+        id:
+          type: integer
+        invitedByName:
+          type: string
+        email:
+          type: string
+          format: email
+        teamId:
+          type: integer
+        teamName:
+          type: string
+        role:
+          type: string
+          enum: [owner, member]
+          default: member
+        invitedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        id: 1
+        invitedByName: John Doe
+        email: user@example.com
+        teamId: 123
+        teamName: Engineering Team
+        role: member
+        invitedAt: 2024-03-20T10:00:00Z
+        createdAt: 2024-03-20T10:00:00Z
+        updatedAt: 2024-03-20T10:00:00Z
+
   responses:
     DuplicateEmail:
       description: Email already taken

@@ -6,6 +6,33 @@ const dateformatter = require('../utils/dateformatter');
 class Token {
   static knexInstance = knex;
 
+  static async create(data) {
+    // Validate token type
+    const validTypes = ['refresh', 'reset_password', 'verify_email'];
+    if (!validTypes.includes(data.type)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, `Invalid token type. Must be one of: ${validTypes.join(', ')}`);
+    }
+
+    const [id] = await this.knexInstance('tokens').insert({
+      token: data.token,
+      userId: data.user,
+      type: data.type,
+      expires: dateformatter(data.expires),
+      blacklisted: data.blacklisted ? 1 : 0,
+      createdAt: this.knexInstance.fn.now(),
+      updatedAt: this.knexInstance.fn.now(),
+    });
+
+    return {
+      id,
+      token: data.token,
+      userId: data.user,
+      type: data.type,
+      expires: data.expires,
+      blacklisted: !!data.blacklisted,
+    };
+  }
+
   static async findOne(query) {
     const queryBuilder = this.knexInstance('tokens');
 
@@ -34,10 +61,10 @@ class Token {
   static async countDocuments(query) {
     const queryBuilder = this.knexInstance('tokens');
 
-    if (query.user) {
+    if (query && query.user) {
       queryBuilder.where('userId', query.user);
     }
-    if (query.type) {
+    if (query && query.type) {
       queryBuilder.where('type', query.type);
     }
 
@@ -45,31 +72,14 @@ class Token {
     return parseInt(count, 10);
   }
 
-  static async create(data) {
-    // Validate token type
-    const validTypes = ['refresh', 'reset_password', 'verify_email'];
-    if (!validTypes.includes(data.type)) {
-      throw new ApiError(httpStatus.BAD_REQUEST, `Invalid token type. Must be one of: ${validTypes.join(', ')}`);
+  static async delete(query) {
+    const queryBuilder = this.knexInstance('tokens');
+
+    if (query.token) {
+      queryBuilder.where('token', query.token);
     }
 
-    const [id] = await this.knexInstance('tokens').insert({
-      token: data.token,
-      userId: data.user,
-      type: data.type,
-      expires: dateformatter(data.expires),
-      blacklisted: data.blacklisted ? 1 : 0,
-      createdAt: this.knexInstance.fn.now(),
-      updatedAt: this.knexInstance.fn.now(),
-    });
-
-    return {
-      id,
-      token: data.token,
-      userId: data.user,
-      type: data.type,
-      expires: data.expires,
-      blacklisted: !!data.blacklisted,
-    };
+    return queryBuilder.del();
   }
 
   static async deleteMany(query) {
