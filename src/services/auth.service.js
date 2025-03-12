@@ -141,14 +141,20 @@ const createOTPRecord = async (otpData) => {
  */
 const checkOTPCooldownPeriod = async (userId, mobileNumber) => {
   const existingOTP = await findOTPByUserIdAndMobile(userId, mobileNumber);
-  if (existingOTP) {
-    const cooldownPeriod = moment().subtract(config.otp.cooldownMinutes, 'minutes');
-    if (moment(existingOTP.updatedAt).isAfter(cooldownPeriod)) {
-      throw new ApiError(
-        httpStatus.TOO_MANY_REQUESTS,
-        `Please wait ${config.otp.cooldownMinutes} minutes before requesting another OTP`
-      );
-    }
+  if (!existingOTP) {
+    return; // No existing OTP, so no cooldown needed
+  }
+
+  const cooldownEndsAt = moment.utc(existingOTP.updatedAt)
+    .add(config.otp.cooldownMinutes, 'minutes')
+  const currentTimestamp = moment.utc();
+
+  if (currentTimestamp.isBefore(cooldownEndsAt)) {
+    const secondsRemaining = Math.ceil(cooldownEndsAt.diff(currentTimestamp, 'seconds', true));
+    throw new ApiError(
+      httpStatus.TOO_MANY_REQUESTS,
+      `Please wait ${secondsRemaining} second${secondsRemaining === 1 ? '' : 's'} before requesting another OTP`
+    );
   }
 };
 
