@@ -1,10 +1,10 @@
 const express = require('express');
+const passport = require('passport');
+const httpStatus = require('http-status');
 const validate = require('../../middlewares/validate');
 const { authValidation } = require('../../validations');
 const { authController } = require('../../controllers');
 const auth = require('../../middlewares/auth');
-const passport = require('passport');
-const httpStatus = require('http-status');
 const { otpLimiter } = require('../../middlewares/rateLimiter');
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.post(
   '/verify-otp',
   validate(authValidation.verifyOTP),
   (req, res, next) => {
-    passport.authenticate('otp', { session: false }, (err, user, info) => {
+    passport.authenticate('otp', { session: false }, (err, user) => {
       if (err || !user) {
         return res.status(httpStatus.UNAUTHORIZED).json({
           code: httpStatus.UNAUTHORIZED,
@@ -139,7 +139,7 @@ module.exports = router;
  *               type: object
  *               properties:
  *                 user:
-*                    $ref: '#/components/schemas/User'
+ *                    $ref: '#/components/schemas/User'
  *                 tokens:
  *                   $ref: '#/components/schemas/AuthTokens'
  *       "401":

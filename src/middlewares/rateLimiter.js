@@ -1,5 +1,4 @@
 const rateLimit = require('express-rate-limit');
-const config = require('../config/config');
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

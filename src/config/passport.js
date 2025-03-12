@@ -29,7 +29,7 @@ const jwtVerify = async (payload, done) => {
 const otpVerify = async (req, done) => {
   try {
     const { mobileNumber, otp } = req.body;
-    
+
     // Find user by mobile number
     const user = await userService.getUserByMobileNumber(mobileNumber);
 

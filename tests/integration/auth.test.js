@@ -419,18 +419,12 @@ describe('Auth routes', () => {
     });
 
     test('should return 400 error if mobile number is invalid', async () => {
-      await request(app)
-        .post('/v1/auth/send-otp')
-        .send({ mobileNumber: 'invalid' })
-        .expect(httpStatus.BAD_REQUEST);
+      await request(app).post('/v1/auth/send-otp').send({ mobileNumber: 'invalid' }).expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 429 error if cooldown period is not over', async () => {
       // Send first OTP
-      await request(app)
-        .post('/v1/auth/send-otp')
-        .send({ mobileNumber: newUser.mobileNumber })
-        .expect(httpStatus.OK);
+      await request(app).post('/v1/auth/send-otp').send({ mobileNumber: newUser.mobileNumber }).expect(httpStatus.OK);
 
       // Try sending another OTP immediately
       const res = await request(app)

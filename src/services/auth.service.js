@@ -1,11 +1,11 @@
 const httpStatus = require('http-status');
-const tokenService = require('./token.service');
-const userService = require('./user.service');
-const { Token, MobileOTP, User } = require('../models');
-const { tokenTypes } = require('../config/tokens');
-const ApiError = require('../utils/ApiError');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
+const tokenService = require('./token.service');
+const userService = require('./user.service');
+const { Token, MobileOTP } = require('../models');
+const { tokenTypes } = require('../config/tokens');
+const ApiError = require('../utils/ApiError');
 const config = require('../config/config');
 
 /**
@@ -109,9 +109,11 @@ const generateOTP = () => {
  * @param {string} otp
  * @returns {Promise<void>}
  */
+// eslint-disable-next-line no-unused-vars
 const sendOTPSMS = async (mobileNumber, otp) => {
-  // TODO: Implement SMS sending logic using your preferred SMS provider
-  console.log(`Sending OTP: ${otp} to ${mobileNumber}`);
+  // Implementation needed: Integrate with SMS provider to send OTP
+  // Parameters to use: mobileNumber (string), otp (string)
+  // Example providers: Twilio, MessageBird, AWS SNS
 };
 
 /**
@@ -145,8 +147,7 @@ const checkOTPCooldownPeriod = async (userId, mobileNumber) => {
     return; // No existing OTP, so no cooldown needed
   }
 
-  const cooldownEndsAt = moment.utc(existingOTP.updatedAt)
-    .add(config.otp.cooldownMinutes, 'minutes')
+  const cooldownEndsAt = moment.utc(existingOTP.updatedAt).add(config.otp.cooldownMinutes, 'minutes');
   const currentTimestamp = moment.utc();
 
   if (currentTimestamp.isBefore(cooldownEndsAt)) {
@@ -251,6 +252,8 @@ module.exports = {
   refreshAuth,
   resetPassword,
   verifyEmail,
+  generateOTP,
+  sendOTPSMS,
   createOTPForAuth,
   verifyOTPAndGetUser,
 };
