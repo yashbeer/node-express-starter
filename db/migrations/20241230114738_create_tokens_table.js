@@ -7,7 +7,7 @@ exports.up = function (knex) {
     table.increments('id').primary();
     table.text('token').notNullable();
     table.integer('user_id').notNullable();
-    table.foreign('user_id').references('users.id');
+    table.foreign('user_id').references('users.id').onDelete('CASCADE');
     table.enu('type', ['refresh', 'reset_password', 'verify_email']).notNullable();
     table.datetime('expires').notNullable();
     table.boolean('blacklisted').defaultTo(false);
