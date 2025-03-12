@@ -18,7 +18,11 @@ describe('User model', () => {
 
   beforeEach(async () => {
     // Clean up tables before each test
-    await knex('users').truncate();
+    // Delete from tables with foreign keys first
+    await knex('tokens').del();
+    await knex('teamspaces').del();
+    // Delete from users table last
+    await knex('users').del();
   });
 
   describe('User validation', () => {
