@@ -7,4 +7,4 @@ nodemailer.createTransport = jest.fn().mockReturnValue({
   verify: jest.fn().mockResolvedValue(true),
 });
 
-module.exports = nodemailer; 
+module.exports = nodemailer;

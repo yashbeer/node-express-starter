@@ -8,5 +8,5 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'clover', 'html'],
   forceExit: true,
   testTimeout: 30000,
-  moduleDirectories: ['node_modules', '<rootDir>/tests/__mocks__']
+  moduleDirectories: ['node_modules', '<rootDir>/tests/__mocks__'],
 };

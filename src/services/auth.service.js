@@ -109,11 +109,14 @@ const generateOTP = () => {
  * @param {string} otp
  * @returns {Promise<void>}
  */
-// eslint-disable-next-line no-unused-vars
 const sendOTPSMS = async (mobileNumber, otp) => {
-  // Implementation needed: Integrate with SMS provider to send OTP
-  // Parameters to use: mobileNumber (string), otp (string)
-  // Example providers: Twilio, MessageBird, AWS SNS
+  if (config.env === 'development') {
+    // eslint-disable-next-line no-console
+    console.log(`OTP sent to ${mobileNumber}: ${otp}`);
+  } else {
+    // TODO: Implement SMS sending logic for production
+    // Provider: Msg91, Twilio, etc.
+  }
 };
 
 /**
