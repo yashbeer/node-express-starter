@@ -6,30 +6,6 @@ A boilerplate/starter project for quickly building RESTful APIs using Node.js, E
 
 By running a single command, you will get a production-ready Node.js app installed and fully configured on your machine. The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
 
-## Installation
-
-Clone the repo:
-
-```bash
-git clone --depth 1 https://github.com/yashbeer/node-express-starter.git
-cd node-express-starter
-npx rimraf ./.git
-```
-
-Install the dependencies:
-
-```bash
-yarn install
-```
-
-Set the environment variables:
-
-```bash
-cp .env.example .env
-
-# open .env and modify the environment variables (if needed)
-```
-
 ## Table of Contents
 
 - [Features](#features)
@@ -68,6 +44,30 @@ cp .env.example .env
 - **Linting**: with [ESLint](https://eslint.org) and [Prettier](https://prettier.io)
 - **Editor config**: consistent editor configuration using [EditorConfig](https://editorconfig.org)
 
+## Installation
+
+Clone the repo:
+
+```bash
+git clone --depth 1 https://github.com/yashbeer/node-express-starter.git
+cd node-express-starter
+npx rimraf ./.git
+```
+
+Install the dependencies:
+
+```bash
+yarn install
+```
+
+Set the environment variables:
+
+```bash
+cp .env.example .env
+
+# open .env and modify the environment variables (if needed)
+```
+
 ## Commands
 
 Running locally:
@@ -95,19 +95,6 @@ yarn test:watch
 yarn coverage
 ```
 
-Docker:
-
-```bash
-# run docker container in development mode
-yarn docker:dev
-
-# run docker container in production mode
-yarn docker:prod
-
-# run all tests in a docker container
-yarn docker:test
-```
-
 Linting:
 
 ```bash
@@ -123,6 +110,20 @@ yarn prettier
 # fix prettier errors
 yarn prettier:fix
 ```
+
+Docker:
+
+```bash
+# run docker container in development mode
+yarn docker:dev
+
+# run docker container in production mode
+yarn docker:prod
+
+# run all tests in a docker container
+yarn docker:test
+```
+
 
 ## Environment Variables
 
