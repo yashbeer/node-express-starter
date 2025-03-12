@@ -22,6 +22,7 @@ const userOne = {
   password: 'password1',
   role: 'user',
   isEmailVerified: 0,
+  mobileNumber: '9876543210',
 };
 
 const userTwo = {
@@ -31,6 +32,7 @@ const userTwo = {
   password: 'password1',
   role: 'user',
   isEmailVerified: 0,
+  mobileNumber: '9876543211',
 };
 
 const userThree = {
@@ -40,6 +42,7 @@ const userThree = {
   password: 'password1',
   role: 'user',
   isEmailVerified: 0,
+  mobileNumber: '9876543212',
 };
 
 const admin = {
@@ -49,6 +52,7 @@ const admin = {
   password: 'password1',
   role: 'admin',
   isEmailVerified: 0,
+  mobileNumber: '9876543213',
 };
 
 const insertUsers = async (users) => {
