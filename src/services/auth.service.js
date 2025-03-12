@@ -1,9 +1,12 @@
 const httpStatus = require('http-status');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
-const { Token } = require('../models');
+const { Token, MobileOTP, User } = require('../models');
 const { tokenTypes } = require('../config/tokens');
 const ApiError = require('../utils/ApiError');
+const moment = require('moment');
+const bcrypt = require('bcryptjs');
+const config = require('../config/config');
 
 /**
  * Login with username and password
@@ -92,10 +95,156 @@ const verifyEmail = async (verifyEmailToken) => {
   }
 };
 
+/**
+ * Generate a random 6-digit OTP
+ * @returns {string}
+ */
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+/**
+ * Send OTP to mobile number
+ * @param {string} mobileNumber
+ * @param {string} otp
+ * @returns {Promise<void>}
+ */
+const sendOTPSMS = async (mobileNumber, otp) => {
+  // TODO: Implement SMS sending logic using your preferred SMS provider
+  console.log(`Sending OTP: ${otp} to ${mobileNumber}`);
+};
+
+/**
+ * Find OTP record by user ID and mobile number
+ * @param {number} userId
+ * @param {string} mobileNumber
+ * @returns {Promise<MobileOTP>}
+ */
+const findOTPByUserIdAndMobile = async (userId, mobileNumber) => {
+  return MobileOTP.findByUserIdAndMobile(userId, mobileNumber);
+};
+
+/**
+ * Create new OTP record
+ * @param {Object} otpData
+ * @returns {Promise<MobileOTP>}
+ */
+const createOTPRecord = async (otpData) => {
+  return MobileOTP.create(otpData);
+};
+
+/**
+ * Check if user is within OTP cooldown period
+ * @param {number} userId
+ * @param {string} mobileNumber
+ * @returns {Promise<void>}
+ */
+const checkOTPCooldownPeriod = async (userId, mobileNumber) => {
+  const existingOTP = await findOTPByUserIdAndMobile(userId, mobileNumber);
+  if (existingOTP) {
+    const cooldownPeriod = moment().subtract(config.otp.cooldownMinutes, 'minutes');
+    if (moment(existingOTP.updatedAt).isAfter(cooldownPeriod)) {
+      throw new ApiError(
+        httpStatus.TOO_MANY_REQUESTS,
+        `Please wait ${config.otp.cooldownMinutes} minutes before requesting another OTP`
+      );
+    }
+  }
+};
+
+/**
+ * Create and send OTP for authentication
+ * @param {string} mobileNumber
+ * @returns {Promise<Object>}
+ */
+const createOTPForAuth = async (mobileNumber) => {
+  // Check for existing OTP and enforce cooldown period
+  let user;
+  try {
+    user = await userService.getUserByMobileNumber(mobileNumber);
+  } catch (error) {
+    if (error.statusCode === httpStatus.NOT_FOUND) {
+      // If user doesn't exist, create a new one
+      const randomName = `user.${Math.random().toString(36).substring(2, 8)}`;
+      const randomPassword = Math.random().toString(36).substring(2, 15);
+      user = await userService.createUser({
+        name: randomName,
+        email: `${randomName}@temp.com`,
+        password: randomPassword,
+        mobileNumber,
+      });
+    } else {
+      throw error;
+    }
+  }
+
+  // Check cooldown period
+  await checkOTPCooldownPeriod(user.id, mobileNumber);
+
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedOTP = await bcrypt.hash(otp, 8);
+
+  // Create or update OTP record
+  const otpRecord = await createOTPRecord({
+    userId: user.id,
+    mobileNumber,
+    otp: hashedOTP,
+    expiresAt: moment().add(config.otp.expirationMinutes, 'minutes').toDate(),
+  });
+
+  // Send OTP via SMS
+  await sendOTPSMS(mobileNumber, otp);
+
+  return {
+    userId: user.id,
+    expiresAt: otpRecord.expiresAt,
+  };
+};
+
+/**
+ * Verify OTP
+ * @param {number} userId
+ * @param {string} mobileNumber
+ * @param {string} otp
+ * @returns {Promise<boolean>}
+ */
+const verifyOTP = async (userId, mobileNumber, otp) => {
+  const otpRecord = await findOTPByUserIdAndMobile(userId, mobileNumber);
+  if (!otpRecord) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'OTP not found');
+  }
+
+  if (moment().isAfter(otpRecord.expiresAt)) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'OTP has expired');
+  }
+
+  const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+  if (!isMatch) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid OTP');
+  }
+
+  return true;
+};
+
+/**
+ * Verify OTP and get user
+ * @param {number} userId
+ * @param {string} mobileNumber
+ * @param {string} otp
+ * @returns {Promise<User>}
+ */
+const verifyOTPAndGetUser = async (userId, mobileNumber, otp) => {
+  await verifyOTP(userId, mobileNumber, otp);
+  return userService.getUserById(userId);
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
   refreshAuth,
   resetPassword,
   verifyEmail,
+  createOTPForAuth,
+  verifyOTPAndGetUser,
 };

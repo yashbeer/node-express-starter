@@ -48,6 +48,19 @@ const getUserByEmail = async (email, keepPassword = false) => {
 };
 
 /**
+ * Get user by mobile number
+ * @param {string} mobileNumber
+ * @returns {Promise<User>}
+ */
+const getUserByMobileNumber = async (mobileNumber) => {
+  const user = await User.findByMobileNumber(mobileNumber);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  return user;
+};
+
+/**
  * Update user by id
  * @param {ObjectId} userId
  * @param {Object} updateBody
@@ -75,6 +88,7 @@ module.exports = {
   queryUsers,
   getUserById,
   getUserByEmail,
+  getUserByMobileNumber,
   updateUserById,
   deleteUserById,
   isPasswordMatch,

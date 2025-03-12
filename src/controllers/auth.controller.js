@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService } = require('../services');
+const { User } = require('../models');
+const { ApiError } = require('../utils/ApiError');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -52,6 +54,26 @@ const validateToken = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ isValid: true });
 });
 
+const sendOTP = catchAsync(async (req, res) => {
+  const { mobileNumber } = req.body;
+  const result = await authService.createOTPForAuth(mobileNumber);
+  
+  res.status(httpStatus.OK).send({
+    code: httpStatus.OK,
+    message: 'OTP sent successfully',
+    data: result,
+  });
+});
+
+const verifyOTP = catchAsync(async (req, res) => {
+  const { mobileNumber, otp } = req.body;
+  const user = await userService.getUserByMobileNumber(mobileNumber);
+  await authService.verifyOTPAndGetUser(user.id, mobileNumber, otp);
+  const tokens = await tokenService.generateAuthTokens(user);
+  
+  res.send({ user, tokens });
+});
+
 module.exports = {
   register,
   login,
@@ -62,4 +84,6 @@ module.exports = {
   sendVerificationEmail,
   verifyEmail,
   validateToken,
+  sendOTP,
+  verifyOTP,
 };

@@ -8,6 +8,7 @@ exports.up = function (knex) {
     table.string('name').notNullable();
     table.string('email').unique().notNullable();
     table.string('password').notNullable();
+    table.string('mobile_number', 15).unique();
     table.enu('role', ['user', 'admin']).defaultTo('user');
     table.boolean('is_email_verified').defaultTo(false);
     table.timestamp('created_at').defaultTo(knex.fn.now());

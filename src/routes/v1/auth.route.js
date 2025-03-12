@@ -3,6 +3,9 @@ const validate = require('../../middlewares/validate');
 const { authValidation } = require('../../validations');
 const { authController } = require('../../controllers');
 const auth = require('../../middlewares/auth');
+const passport = require('passport');
+const httpStatus = require('http-status');
+const { otpLimiter } = require('../../middlewares/rateLimiter');
 
 const router = express.Router();
 
@@ -14,7 +17,24 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
-router.get('/validate', auth(), authController.validateToken);
+router.post('/send-otp', otpLimiter, validate(authValidation.sendOTP), authController.sendOTP);
+router.post(
+  '/verify-otp',
+  validate(authValidation.verifyOTP),
+  (req, res, next) => {
+    passport.authenticate('otp', { session: false }, (err, user, info) => {
+      if (err || !user) {
+        return res.status(httpStatus.UNAUTHORIZED).json({
+          code: httpStatus.UNAUTHORIZED,
+          message: err?.message || 'OTP verification failed',
+        });
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  authController.verifyOTP
+);
 
 module.exports = router;
 
@@ -23,6 +43,114 @@ module.exports = router;
  * tags:
  *   name: Auth
  *   description: Authentication
+ */
+
+/**
+ * @swagger
+ * /auth/send-otp:
+ *   post:
+ *     summary: Send OTP
+ *     description: Send a one-time password (OTP) to the user's mobile number
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - mobileNumber
+ *             properties:
+ *               mobileNumber:
+ *                 type: string
+ *                 description: Mobile number to send OTP to (10 digits)
+ *                 pattern: '^[0-9]{10}$'
+ *             example:
+ *               mobileNumber: "9876543210"
+ *     responses:
+ *       "200":
+ *         description: OTP sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: integer
+ *                       example: 1
+ *                     expiresAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-03-21T10:30:00Z"
+ *       "429":
+ *         description: Too many OTP requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               code: 429
+ *               message: Too many OTP requests. Please try again later.
+ */
+
+/**
+ * @swagger
+ * /auth/verify-otp:
+ *   post:
+ *     summary: Verify OTP
+ *     description: Verify the OTP sent to user's mobile number
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - mobileNumber
+ *               - otp
+ *             properties:
+ *               mobileNumber:
+ *                 type: string
+ *                 description: Mobile number the OTP was sent to (10 digits)
+ *                 pattern: '^[0-9]{10}$'
+ *               otp:
+ *                 type: string
+ *                 description: The 6-digit OTP received
+ *                 pattern: '^[0-9]{6}$'
+ *             example:
+ *               mobileNumber: "9876543210"
+ *               otp: "123456"
+ *     responses:
+ *       "200":
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+*                    $ref: '#/components/schemas/User'
+ *                 tokens:
+ *                   $ref: '#/components/schemas/AuthTokens'
+ *       "401":
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               code: 401
+ *               message: OTP verification failed
  */
 
 /**

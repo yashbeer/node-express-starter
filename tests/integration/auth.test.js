@@ -34,6 +34,7 @@ describe('Auth routes', () => {
         email: newUser.email,
         role: 'user',
         isEmailVerified: 0,
+        mobileNumber: null,
         createdAt: expect.anything(),
         updatedAt: expect.anything(),
       });
@@ -94,6 +95,7 @@ describe('Auth routes', () => {
         name: userOne.name,
         email: userOne.email,
         role: userOne.role,
+        mobileNumber: null,
         isEmailVerified: userOne.isEmailVerified,
         createdAt: expect.anything(),
         updatedAt: expect.anything(),

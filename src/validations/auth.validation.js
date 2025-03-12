@@ -49,6 +49,34 @@ const verifyEmail = {
   }),
 };
 
+const sendOTP = {
+  body: Joi.object().keys({
+    mobileNumber: Joi.string()
+      .required()
+      .pattern(/^[0-9]{10}$/)
+      .messages({
+        'string.pattern.base': 'Mobile number must be a 10-digit number',
+      }),
+  }),
+};
+
+const verifyOTP = {
+  body: Joi.object().keys({
+    mobileNumber: Joi.string()
+      .required()
+      .pattern(/^[0-9]{10}$/)
+      .messages({
+        'string.pattern.base': 'Mobile number must be a 10-digit number',
+      }),
+    otp: Joi.string()
+      .required()
+      .pattern(/^[0-9]{6}$/)
+      .messages({
+        'string.pattern.base': 'OTP must be a 6-digit number',
+      }),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -57,4 +85,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  sendOTP,
+  verifyOTP,
 };

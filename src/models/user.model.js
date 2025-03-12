@@ -8,7 +8,7 @@ class User {
   static knexInstance = knex;
 
   static async create(userData) {
-    const { name, email, password, role = 'user' } = userData;
+    const { name, email, password, role = 'user', mobileNumber } = userData;
 
     if (!validator.isEmail(email)) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid email');
@@ -22,6 +22,10 @@ class User {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Password must contain at least one letter and one number');
     }
 
+    if (mobileNumber && !mobileNumber.match(/^[0-9]{10}$/)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number must be a 10-digit number');
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 8);
 
@@ -30,6 +34,7 @@ class User {
       email: email.toLowerCase(),
       password: hashedPassword,
       role,
+      mobileNumber,
     });
 
     return this.findById(id);
@@ -41,6 +46,14 @@ class User {
       throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
     if (!keepPassword) {
+      delete user.password;
+    }
+    return user;
+  }
+
+  static async findByMobileNumber(mobileNumber) {
+    const user = await this.knexInstance('users').where('mobileNumber', mobileNumber).first();
+    if (user) {
       delete user.password;
     }
     return user;
@@ -86,6 +99,16 @@ class User {
       sanitizedData.password = await bcrypt.hash(updateData.password, 8);
     }
 
+    if (updateData.mobileNumber) {
+      if (!updateData.mobileNumber.match(/^[0-9]{10}$/)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number must be a 10-digit number');
+      }
+      if (await this.isMobileNumberTaken(updateData.mobileNumber, userId)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
+      }
+      sanitizedData.mobile_number = updateData.mobileNumber;
+    }
+
     sanitizedData.updatedAt = this.knexInstance.fn.now();
 
     await this.knexInstance('users').where('id', userId).update(sanitizedData);
@@ -128,7 +151,7 @@ class User {
       .orderBy(sortField, sortOrder)
       .limit(limit)
       .offset(offset)
-      .select(['id', 'name', 'email', 'role', 'isEmailVerified', 'createdAt', 'updatedAt']);
+      .select(['id', 'name', 'email', 'role', 'isEmailVerified', 'mobileNumber', 'createdAt', 'updatedAt']);
 
     // Calculate total pages
     const totalPages = Math.ceil(totalCount / limit);
@@ -143,6 +166,11 @@ class User {
 
   static async isEmailTaken(email, excludeUserId = 0) {
     const user = await this.knexInstance('users').where('email', email.toLowerCase()).whereNot('id', excludeUserId).first();
+    return !!user;
+  }
+
+  static async isMobileNumberTaken(mobileNumber, excludeUserId = 0) {
+    const user = await this.knexInstance('users').where('mobileNumber', mobileNumber).whereNot('id', excludeUserId).first();
     return !!user;
   }
 }
